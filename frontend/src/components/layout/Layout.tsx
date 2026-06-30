@@ -6,14 +6,6 @@ import { Navbar } from './Navbar';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import type { Alert } from '../../types';
 
-/**
- * FIX H7: The original Layout never passed recentAlerts, onRefresh, or
- * wsConnected to Navbar, so the notification bell always showed 0 and the
- * live indicator was always "CONNECTING".
- *
- * Layout now owns the shared alert state and WS connection status, and passes
- * them down to Navbar so the indicator and bell work correctly across all pages.
- */
 export const Layout: React.FC = () => {
   const [recentAlerts, setRecentAlerts] = useState<Alert[]>([]);
   const [wsConnected, setWsConnected] = useState(false);

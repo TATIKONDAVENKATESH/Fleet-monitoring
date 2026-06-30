@@ -53,10 +53,6 @@ public class AlertController {
         return ResponseEntity.ok(ApiResponse.success("Alert acknowledged", alertService.acknowledge(id)));
     }
 
-    /**
-     * BUG FIX B9: This endpoint was called by the frontend (services.ts alertApi.acknowledgeAll)
-     * but was never implemented in the original controller.
-     */
     @PatchMapping("/acknowledge-all")
     @Operation(summary = "Acknowledge all unacknowledged alerts")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")

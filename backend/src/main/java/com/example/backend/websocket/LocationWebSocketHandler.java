@@ -6,13 +6,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-/**
- * Bridges Redis Pub/Sub messages to connected WebSocket (STOMP) clients.
- *
- * Clients subscribe to:
- *   /topic/locations  — live vehicle location payloads
- *   /topic/alerts     — alert payloads (overspeed, offline, geofence)
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

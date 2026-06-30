@@ -24,11 +24,6 @@ export const authApi = {
 };
 
 // ─── Dashboard ─────────────────────────────────────────────────────────────
-/**
- * FIX B1: The original URL was '/dashboard/stats' but the backend
- * DashboardController exposes GET /api/v1/dashboard (no /stats suffix).
- * The response includes liveLocations alongside the stat counts.
- */
 export const dashboardApi = {
   getStats: () => apiClient.get<ApiResponse<DashboardStats & { liveLocations: LiveLocation[] }>>('/v1/dashboard'),
 };

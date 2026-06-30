@@ -91,12 +91,6 @@ public class VehicleService {
         return vehicleMapper.toResponse(vehicleRepository.save(vehicle));
     }
 
-    /**
-     * FIX M7: Added @Transactional so this helper method participates in
-     * the caller's transaction (e.g. TrackingService.processLocation).
-     * Without it, Hibernate may throw a LazyInitializationException when
-     * accessing LAZY relationships (e.g. vehicle.getDriver()) outside a session.
-     */
     @Transactional
     public Vehicle getVehicle(Long id) {
         return vehicleRepository.findById(id)

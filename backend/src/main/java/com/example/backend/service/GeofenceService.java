@@ -28,11 +28,6 @@ public class GeofenceService {
         return geofenceRepository.findAll(pageable).map(geofenceMapper::toResponse);
     }
 
-    /**
-     * BUG FIX B10: New method that returns all geofences as a list.
-     * Used by GeofenceController.getAll() to match the frontend's expectation
-     * of receiving a JSON array (not a paginated wrapper).
-     */
     @Transactional(readOnly = true)
     public List<GeofenceResponse> findAllAsList() {
         return geofenceRepository.findAll()

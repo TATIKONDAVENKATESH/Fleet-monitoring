@@ -19,10 +19,6 @@ import java.util.concurrent.Executor;
 @Configuration
 public class AppConfig {
 
-    /**
-     * Resolves the currently-authenticated username for JPA audit columns
-     * (created_by, updated_by). Referenced by name in @EnableJpaAuditing.
-     */
     @Bean
     public AuditorAware<String> auditorAware() {
         return () -> Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
@@ -30,10 +26,6 @@ public class AppConfig {
                 .map(Authentication::getName);
     }
 
-    /**
-     * Dedicated thread pool for async WebSocket broadcasts so location updates
-     * don't block the HTTP request thread.
-     */
     @Bean(name = "websocketExecutor")
     public Executor websocketExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -45,10 +37,6 @@ public class AppConfig {
         return executor;
     }
 
-    /**
-     * OpenAPI / Swagger UI — adds JWT Bearer security scheme so protected
-     * endpoints can be tested directly from /swagger-ui.html.
-     */
     @Bean
     public OpenAPI openAPI() {
         final String schemeName = "bearerAuth";

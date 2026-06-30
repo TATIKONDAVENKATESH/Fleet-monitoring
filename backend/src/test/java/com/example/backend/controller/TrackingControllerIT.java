@@ -21,15 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Integration tests for TrackingController.
- *
- * NEW FILE: The test/controller/ directory existed but was empty.
- * These tests cover the primary tracking endpoints.
- *
- * Note: requires a running Redis instance (started in CI via docker service
- * or locally via: docker run -p 6379:6379 redis:7-alpine).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

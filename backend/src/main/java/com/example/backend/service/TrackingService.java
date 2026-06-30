@@ -56,7 +56,6 @@ public class TrackingService {
     public LiveLocationResponse processLocation(LocationRequest request) {
         Vehicle vehicle = vehicleService.getVehicle(request.getVehicleId());
 
-        // BUG FIX T1: Explicitly save the status transition ACTIVE
         if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
             vehicle.setStatus(VehicleStatus.ACTIVE);
             vehicleRepository.save(vehicle);

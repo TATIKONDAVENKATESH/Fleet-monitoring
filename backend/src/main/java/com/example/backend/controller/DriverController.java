@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Drivers", description = "Driver management")
 public class DriverController {
 
+
     private final DriverService driverService;
 
     @GetMapping

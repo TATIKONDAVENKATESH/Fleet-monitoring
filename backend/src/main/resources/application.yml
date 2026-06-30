@@ -50,9 +50,6 @@ spring:
       timeout: 2000ms
       lettuce:
         pool:
-          # BUG FIX A1: enabled must be true or Lettuce ignores pool settings entirely.
-          # Also requires commons-pool2 on the classpath (included transitively by
-          # spring-boot-starter-data-redis when lettuce-core is present).
           enabled: true
           max-active: 16
           max-idle: 8
@@ -133,10 +130,6 @@ spring:
   data:
     redis:
       host: localhost
-      # BUG FIX A2: The test profile had port 6370 but the backend-ci.yml
-      # GitHub Actions workflow starts Redis on the default port 6379.
-      # This mismatch caused all integration tests that touch Redis to fail
-      # with "Connection refused" in CI.  Changed to 6379 to match CI.
       port: 6379
 
 logging:

@@ -9,15 +9,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-/**
- * WebSocket / STOMP configuration.
- *
- * FIX H2: Added WebSocketAuthChannelInterceptor to the inbound channel so
- * every STOMP CONNECT frame is validated against the JWT before a subscription
- * is established.  The raw WebSocket HTTP-upgrade path (/ws/**) is still
- * PUBLIC in SecurityConfig (required for SockJS handshake), but the STOMP
- * session-level auth happens here.
- */
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
@@ -40,10 +31,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/app");
     }
 
-    /**
-     * Register the JWT interceptor on the inbound channel.
-     * This fires before any @MessageMapping or broker subscription.
-     */
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(wsAuthInterceptor);

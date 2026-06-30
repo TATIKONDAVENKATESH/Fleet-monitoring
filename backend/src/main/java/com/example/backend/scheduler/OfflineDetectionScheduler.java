@@ -49,11 +49,6 @@ public class OfflineDetectionScheduler {
             if (raw == null) {
                 isOffline = true;
             } else {
-                /*
-                 * BUG FIX S2: Use toString() instead of casting to String.
-                 * GenericJackson2JsonRedisSerializer may wrap strings with JSON
-                 * quote characters. Strip them before parsing.
-                 */
                 String lastSeenStr = raw.toString().replace("\"", "");
                 try {
                     LocalDateTime lastSeen = LocalDateTime.parse(lastSeenStr);

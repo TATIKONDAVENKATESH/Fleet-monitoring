@@ -23,11 +23,6 @@ public class GeofenceController {
 
     private final GeofenceService geofenceService;
 
-    /**
-     * BUG FIX B10: Original returned Page<GeofenceResponse> but the frontend
-     * geofenceApi.getAll() expects a plain Geofence[] (array), not a paginated
-     * wrapper. Now returns List which serialises to a JSON array.
-     */
     @GetMapping
     @Operation(summary = "List all geofences")
     public ResponseEntity<ApiResponse<List<GeofenceResponse>>> getAll() {

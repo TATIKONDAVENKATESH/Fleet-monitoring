@@ -1,9 +1,3 @@
--- V1__initial_schema.sql
--- Fleet Monitoring Platform - Initial Database Schema
-
--- =============================================
--- USERS
--- =============================================
 CREATE TABLE users (
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(255)        NOT NULL,
@@ -21,9 +15,7 @@ CREATE INDEX idx_users_email   ON users(email);
 CREATE INDEX idx_users_role    ON users(role);
 CREATE INDEX idx_users_status  ON users(status);
 
--- =============================================
--- DRIVERS
--- =============================================
+
 CREATE TABLE drivers (
     id              BIGSERIAL PRIMARY KEY,
     name            VARCHAR(255)    NOT NULL,
@@ -40,9 +32,6 @@ CREATE TABLE drivers (
 CREATE INDEX idx_drivers_license  ON drivers(license_number);
 CREATE INDEX idx_drivers_status   ON drivers(status);
 
--- =============================================
--- VEHICLES
--- =============================================
 CREATE TABLE vehicles (
     id                  BIGSERIAL PRIMARY KEY,
     vehicle_number      VARCHAR(50)     NOT NULL UNIQUE,
@@ -62,9 +51,6 @@ CREATE INDEX idx_vehicles_driver      ON vehicles(driver_id);
 CREATE INDEX idx_vehicles_status      ON vehicles(status);
 CREATE INDEX idx_vehicles_registration ON vehicles(registration_number);
 
--- =============================================
--- LOCATION HISTORY
--- =============================================
 CREATE TABLE location_history (
     id          BIGSERIAL PRIMARY KEY,
     vehicle_id  BIGINT          NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
@@ -78,9 +64,6 @@ CREATE TABLE location_history (
 CREATE INDEX idx_location_vehicle_time ON location_history(vehicle_id, recorded_at DESC);
 CREATE INDEX idx_location_recorded_at  ON location_history(recorded_at DESC);
 
--- =============================================
--- GEOFENCES
--- =============================================
 CREATE TABLE geofences (
     id                  BIGSERIAL PRIMARY KEY,
     name                VARCHAR(255)    NOT NULL,
@@ -97,9 +80,6 @@ CREATE TABLE geofences (
 CREATE INDEX idx_geofences_name   ON geofences(name);
 CREATE INDEX idx_geofences_active ON geofences(active);
 
--- =============================================
--- ALERTS
--- =============================================
 CREATE TABLE alerts (
     id              BIGSERIAL PRIMARY KEY,
     vehicle_id      BIGINT      NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
@@ -116,9 +96,6 @@ CREATE INDEX idx_alerts_type         ON alerts(alert_type);
 CREATE INDEX idx_alerts_created      ON alerts(created_at DESC);
 CREATE INDEX idx_alerts_acknowledged ON alerts(acknowledged);
 
--- =============================================
--- REFRESH TOKENS
--- =============================================
 CREATE TABLE refresh_tokens (
     id          BIGSERIAL PRIMARY KEY,
     user_id     BIGINT          NOT NULL REFERENCES users(id) ON DELETE CASCADE,

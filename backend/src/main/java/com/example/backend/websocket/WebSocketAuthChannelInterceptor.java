@@ -15,17 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-/**
- * FIX H2 — Validates JWT tokens on STOMP CONNECT frames.
- *
- * The WebSocket HTTP-upgrade endpoint (/ws/tracking) is intentionally PUBLIC
- * in SecurityConfig to allow the SockJS handshake.  This interceptor enforces
- * JWT authentication at the STOMP protocol level before any subscription or
- * message delivery is permitted.
- *
- * Clients must pass the token in the STOMP CONNECT header:
- *   Authorization: Bearer <jwt>
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

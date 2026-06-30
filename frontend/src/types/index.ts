@@ -120,11 +120,6 @@ export interface GeofenceRequest {
   centerLatitude: number;
   centerLongitude: number;
   radiusMeters: number;
-  // BUG FIX F1: `active` field was missing from GeofenceRequest.
-  // The backend GeofenceRequest DTO has an `active` field and the
-  // GeofenceMapper explicitly maps it. Without this in the TS type,
-  // the frontend couldn't pass active=false when creating a disabled geofence,
-  // and TypeScript would refuse to compile any code that tried.
   active?: boolean;
 }
 
