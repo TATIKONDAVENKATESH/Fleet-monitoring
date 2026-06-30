@@ -125,14 +125,7 @@ public class TrackingService {
         Page<LocationHistory> page = locationHistoryRepository
                 .findByVehicleIdAndRecordedAtBetweenOrderByRecordedAtDesc(vehicleId, start, end, pageable);
 
-        return PageResponse.<LocationHistoryResponse>builder()
-                .content(page.getContent().stream().map(locationHistoryMapper::toResponse).toList())
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
+        return PageResponse.of(page, locationHistoryMapper::toResponse);
     }
 
     @Transactional(readOnly = true)

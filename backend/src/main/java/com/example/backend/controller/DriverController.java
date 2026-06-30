@@ -33,7 +33,7 @@ public class DriverController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Page<DriverResponse> result = driverService.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
-        return ResponseEntity.ok(ApiResponse.success(toPageResponse(result)));
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(result)));
     }
 
     @GetMapping("/{id}")
@@ -72,16 +72,5 @@ public class DriverController {
     public ResponseEntity<ApiResponse<DriverResponse>> updateStatus(
             @PathVariable Long id, @RequestParam DriverStatus status) {
         return ResponseEntity.ok(ApiResponse.success(driverService.updateStatus(id, status)));
-    }
-
-    private PageResponse<DriverResponse> toPageResponse(Page<DriverResponse> page) {
-        return PageResponse.<DriverResponse>builder()
-                .content(page.getContent())
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
     }
 }

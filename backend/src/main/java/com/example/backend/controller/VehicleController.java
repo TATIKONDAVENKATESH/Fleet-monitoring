@@ -36,7 +36,7 @@ public class VehicleController {
 
         Sort.Direction dir = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Page<VehicleResponse> result = vehicleService.findAll(PageRequest.of(page, size, Sort.by(dir, sortBy)));
-        return ResponseEntity.ok(ApiResponse.success(toPageResponse(result)));
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(result)));
     }
 
     @GetMapping("/{id}")
@@ -75,16 +75,5 @@ public class VehicleController {
     public ResponseEntity<ApiResponse<VehicleResponse>> updateStatus(
             @PathVariable Long id, @RequestParam VehicleStatus status) {
         return ResponseEntity.ok(ApiResponse.success(vehicleService.updateStatus(id, status)));
-    }
-
-    private PageResponse<VehicleResponse> toPageResponse(Page<VehicleResponse> page) {
-        return PageResponse.<VehicleResponse>builder()
-                .content(page.getContent())
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
     }
 }

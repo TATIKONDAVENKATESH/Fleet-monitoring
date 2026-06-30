@@ -1,9 +1,11 @@
 package com.example.backend.service;
 
 import com.example.backend.constant.UserStatus;
+import com.example.backend.dto.request.ChangePasswordRequest;
 import com.example.backend.dto.request.RegisterRequest;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.entity.User;
+import com.example.backend.exception.BusinessException;
 import com.example.backend.exception.DuplicateResourceException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.mapper.UserMapper;
@@ -60,6 +62,18 @@ public class UserService {
             throw new ResourceNotFoundException("User not found: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = getUser(userId);
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BusinessException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     private User getUser(Long id) {

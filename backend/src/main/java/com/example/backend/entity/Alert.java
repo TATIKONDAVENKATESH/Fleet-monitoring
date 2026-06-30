@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_alerts_acknowledged", columnList = "acknowledged")
 })
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Alert {
+public class Alert extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,10 +34,6 @@ public class Alert {
     @Column(nullable = false)
     @Builder.Default
     private Boolean acknowledged = false;
-
-    @Column(name = "created_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "acknowledged_at")
     private LocalDateTime acknowledgedAt;

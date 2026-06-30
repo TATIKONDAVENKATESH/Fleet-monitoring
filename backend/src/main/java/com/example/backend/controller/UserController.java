@@ -33,7 +33,7 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Page<UserResponse> result = userService.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
-        return ResponseEntity.ok(ApiResponse.success(toPageResponse(result)));
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(result)));
     }
 
     @GetMapping("/{id}")
@@ -61,16 +61,5 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.ok(ApiResponse.success("User deleted", null));
-    }
-
-    private PageResponse<UserResponse> toPageResponse(Page<UserResponse> page) {
-        return PageResponse.<UserResponse>builder()
-                .content(page.getContent())
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
     }
 }

@@ -114,10 +114,6 @@ public class AuthService {
         return refreshTokenRepository.save(token);
     }
 
-    /**
-     * BUG FIX B6: Builds a flat AuthResponse so the frontend can read
-     * userId / name / email / role directly (not via a nested .user object).
-     */
     private AuthResponse buildAuthResponse(String accessToken, String refreshToken, User user) {
         return AuthResponse.builder()
                 .accessToken(accessToken)

@@ -11,7 +11,6 @@ import com.example.backend.mapper.AlertMapper;
 import com.example.backend.repository.AlertRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,17 +28,17 @@ public class AlertService {
 
     @Transactional(readOnly = true)
     public PageResponse<AlertResponse> findAll(Pageable pageable) {
-        return toPageResponse(alertRepository.findAll(pageable));
+        return PageResponse.of(alertRepository.findAll(pageable), alertMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AlertResponse> findUnacknowledged(Pageable pageable) {
-        return toPageResponse(alertRepository.findByAcknowledgedFalseOrderByCreatedAtDesc(pageable));
+        return PageResponse.of(alertRepository.findByAcknowledgedFalseOrderByCreatedAtDesc(pageable), alertMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AlertResponse> findByVehicle(Long vehicleId, Pageable pageable) {
-        return toPageResponse(alertRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId, pageable));
+        return PageResponse.of(alertRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId, pageable), alertMapper::toResponse);
     }
 
     @Transactional
@@ -87,16 +86,5 @@ public class AlertService {
         alert = alertRepository.save(alert);
         log.info("Created {} alert for vehicle {}: {}", type, vehicle.getVehicleNumber(), message);
         return alert;
-    }
-
-    private PageResponse<AlertResponse> toPageResponse(Page<Alert> page) {
-        return PageResponse.<AlertResponse>builder()
-                .content(page.getContent().stream().map(alertMapper::toResponse).toList())
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
     }
 }

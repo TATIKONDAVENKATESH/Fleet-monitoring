@@ -13,6 +13,7 @@ import com.example.backend.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class OfflineDetectionScheduler {
     private final AlertService alertService;
     private final AlertMapper alertMapper;
     private final RedisPublisher redisPublisher;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Value("${app.fleet.offline-threshold-minutes:5}")
     private int offlineThresholdMinutes;
@@ -41,8 +43,7 @@ public class OfflineDetectionScheduler {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(offlineThresholdMinutes);
 
         for (Vehicle vehicle : activeVehicles) {
-            Object raw = redisPublisher
-                    .getLastSeenTimestamp(RedisKeyConstants.vehicleLastSeen(vehicle.getId()));
+            Object raw = readLastSeen(RedisKeyConstants.vehicleLastSeen(vehicle.getId()));
 
             boolean isOffline;
 
@@ -68,7 +69,6 @@ public class OfflineDetectionScheduler {
         }
     }
 
-
     @Transactional
     public void markOffline(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).orElse(null);
@@ -83,5 +83,14 @@ public class OfflineDetectionScheduler {
 
         AlertResponse alertResponse = alertMapper.toResponse(alert);
         redisPublisher.publish(RedisKeyConstants.ALERT_CHANNEL, alertResponse);
+    }
+
+    private Object readLastSeen(String key) {
+        try {
+            return redisTemplate.opsForValue().get(key);
+        } catch (Exception e) {
+            log.error("Failed to read Redis key {}: {}", key, e.getMessage());
+            return null;
+        }
     }
 }
