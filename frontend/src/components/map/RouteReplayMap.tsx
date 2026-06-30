@@ -21,15 +21,6 @@ const vehicleIcon = L.divIcon({
   iconSize: [20, 20], iconAnchor: [10, 10],
 });
 
-/**
- * FIX B2 / H6: Unified prop name from `history` to `waypoints` to match
- * how the parent TrackingPage calls this component:
- *   <RouteReplayMap waypoints={replayData} />
- *
- * The original component declared `history: LocationHistory[]` but the caller
- * passed `waypoints={replayData}`, causing a TypeScript error and the
- * component rendering with an empty array.
- */
 interface RouteReplayMapProps {
   waypoints: LocationHistory[];
 }

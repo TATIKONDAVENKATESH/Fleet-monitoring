@@ -12,11 +12,6 @@ export const authApi = {
     apiClient.post<ApiResponse<AuthResponse>>('/v1/auth/login', data),
   register: (data: { name: string; email: string; password: string; role: string }) =>
     apiClient.post<ApiResponse<AuthResponse>>('/v1/auth/register', data),
-  /**
-   * FIX B3: logout must send the refresh token in the request body.
-   * The backend AuthController.logout(@RequestBody RefreshTokenRequest) requires it.
-   * The original authApi.logout() sent no body → 400 Bad Request.
-   */
   logout: (refreshToken: string) =>
     apiClient.post('/v1/auth/logout', { refreshToken }),
   refresh: (refreshToken: string) =>
@@ -28,13 +23,20 @@ export const dashboardApi = {
   getStats: () => apiClient.get<ApiResponse<DashboardStats & { liveLocations: LiveLocation[] }>>('/v1/dashboard'),
 };
 
+// ─── Profile (self-service) ─────────────────────────────────────────────────
+export const profileApi = {
+  getMe: () => apiClient.get<ApiResponse<User>>('/v1/profile'),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    apiClient.patch<ApiResponse<void>>('/v1/profile/password', { currentPassword, newPassword }),
+};
+
 // ─── Users ─────────────────────────────────────────────────────────────────
 export const userApi = {
   getAll: (page = 0, size = 20) =>
     apiClient.get<ApiResponse<PageResponse<User>>>(`/v1/users?page=${page}&size=${size}`),
   getById: (id: number) => apiClient.get<ApiResponse<User>>(`/v1/users/${id}`),
-  update: (id: number, data: Partial<User>) =>
-    apiClient.put<ApiResponse<User>>(`/v1/users/${id}`, data),
+  updateStatus: (id: number, status: string) =>
+    apiClient.patch<ApiResponse<User>>(`/v1/users/${id}/status`, null, { params: { status } }),
   delete: (id: number) => apiClient.delete(`/v1/users/${id}`),
 };
 

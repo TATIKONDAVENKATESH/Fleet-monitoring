@@ -64,14 +64,13 @@ services:
     restart: unless-stopped
 
   # ── React Frontend ────────────────────────────────────────────
+  # Serves static files only; all API/WS routing for the unified
+  # entrypoint happens through the Nginx reverse proxy below.
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: fleet-frontend
-    # BUG FIX D1: Frontend container serves on its own internal port 80,
-    # but we expose it on host port 3000 to avoid collision with the
-    # Nginx reverse proxy on host port 80.
     ports:
       - "3000:80"
     depends_on:
@@ -79,9 +78,8 @@ services:
     restart: unless-stopped
 
   # ── Nginx Reverse Proxy ───────────────────────────────────────
-  # BUG FIX D2: The nginx.conf backend-only file only proxied /api, /ws,
-  # /swagger-ui. A proper full-stack nginx also needs to proxy / to the
-  # frontend. Updated nginx.conf (infra/nginx/nginx.conf) handles both.
+  # Single entrypoint on host port 80: routes /api, /ws, /swagger-ui,
+  # /actuator to the backend and everything else to the frontend.
   nginx:
     image: nginx:alpine
     container_name: fleet-nginx
@@ -94,41 +92,7 @@ services:
       - frontend
     restart: unless-stopped
 
-  # ── Prometheus ────────────────────────────────────────────────
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: fleet-prometheus
-    volumes:
-      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-      - "9090:9090"
-    depends_on:
-      - backend
-    restart: unless-stopped
-
-  # ── Grafana ───────────────────────────────────────────────────
-  grafana:
-    image: grafana/grafana:latest
-    container_name: fleet-grafana
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
-    volumes:
-      - grafana_data:/var/lib/grafana
-      # BUG FIX D3: The original Grafana service had NO provisioning volume
-      # mounts, so the datasource and dashboard definitions in
-      # infra/grafana/provisioning/ were never loaded into Grafana.
-      # Added the two standard Grafana provisioning paths here.
-      - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
-      - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
-    ports:
-      - "3001:3000"
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-
 volumes:
   postgres_data:
   redis_data:
   backend_logs:
-  grafana_data:

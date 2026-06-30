@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import { Person, Lock } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
-import apiClient from '../api/client';
+import { profileApi } from '../api/services';
 
 const ProfilePage: React.FC = () => {
   const { user } = useAuth();
@@ -24,8 +24,7 @@ const ProfilePage: React.FC = () => {
 
     setSaving(true);
     try {
-      // This endpoint would need to be added to the backend
-      await apiClient.post('/v1/users/change-password', { currentPassword: currentPw, newPassword: newPw });
+      await profileApi.changePassword(currentPw, newPw);
       setSuccess('Password updated successfully');
       setCurrentPw(''); setNewPw(''); setConfirmPw('');
     } catch (err: any) {

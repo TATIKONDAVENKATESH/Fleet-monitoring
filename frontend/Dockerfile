@@ -20,6 +20,9 @@ ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 # ── Runtime stage: serve with Nginx ──────────────────────────────────────
+# This container only serves the built static assets. API and WebSocket
+# routing is handled by the top-level reverse proxy (infra/nginx/nginx.conf)
+# so there is a single source of truth for routing rules.
 FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
@@ -30,15 +33,8 @@ RUN printf 'server {\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
     \n\
-    location /api/ {\n\
-        proxy_pass http://fleet-backend:8080/;\n\
-        proxy_set_header Host $host;\n\
-        proxy_set_header X-Real-IP $remote_addr;\n\
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
-    }\n\
-    \n\
     # Serve static assets with long-lived cache headers\n\
-    location ~* \.(js|css|png|svg|ico|woff2?)$ {\n\
+    location ~* \\.(js|css|png|svg|ico|woff2?)$ {\n\
         expires 1y;\n\
         add_header Cache-Control "public, immutable";\n\
     }\n\
