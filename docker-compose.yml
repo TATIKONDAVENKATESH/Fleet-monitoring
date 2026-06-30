@@ -1,0 +1,134 @@
+version: "3.9"
+
+# =====================================================================
+# Fleet Monitoring Platform — Full Stack Docker Compose
+# =====================================================================
+
+services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: fleet-postgres
+    environment:
+      POSTGRES_DB: fleetdb
+      POSTGRES_USER: ${DB_USERNAME:-fleet}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-fleet123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-fleet} -d fleetdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Redis ─────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: fleet-redis
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Spring Boot Backend ───────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fleet-backend
+    env_file: ./backend/.env
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/fleetdb
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_logs:/app/logs
+    restart: unless-stopped
+
+  # ── React Frontend ────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fleet-frontend
+    # BUG FIX D1: Frontend container serves on its own internal port 80,
+    # but we expose it on host port 3000 to avoid collision with the
+    # Nginx reverse proxy on host port 80.
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ── Nginx Reverse Proxy ───────────────────────────────────────
+  # BUG FIX D2: The nginx.conf backend-only file only proxied /api, /ws,
+  # /swagger-ui. A proper full-stack nginx also needs to proxy / to the
+  # frontend. Updated nginx.conf (infra/nginx/nginx.conf) handles both.
+  nginx:
+    image: nginx:alpine
+    container_name: fleet-nginx
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+
+  # ── Prometheus ────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fleet-prometheus
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ── Grafana ───────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fleet-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      # BUG FIX D3: The original Grafana service had NO provisioning volume
+      # mounts, so the datasource and dashboard definitions in
+      # infra/grafana/provisioning/ were never loaded into Grafana.
+      # Added the two standard Grafana provisioning paths here.
+      - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_logs:
+  grafana_data:

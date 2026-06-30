@@ -1,0 +1,60 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # BUG FIX CI3: cache: npm with cache-dependency-path requires
+          # package-lock.json. Since no lockfile is committed, this would
+          # silently skip caching. Remove cache config to avoid spurious
+          # "cache key not found" warnings. Add back once lockfile is committed.
+          # cache: npm
+          # cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        # BUG FIX CI4: `npm ci` fails if package-lock.json is absent.
+        # Use `npm install` until a lockfile is committed.
+        # TODO: commit package-lock.json and switch back to: npm ci --silent
+        run: npm install --silent
+
+      - name: Type check
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint -- --max-warnings 0
+        continue-on-error: true    # Lint is advisory in CI; remove to make it blocking
+
+      - name: Build
+        working-directory: frontend
+        env:
+          VITE_API_URL: /api
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fleet-frontend-dist
+          path: frontend/dist/
+          retention-days: 5

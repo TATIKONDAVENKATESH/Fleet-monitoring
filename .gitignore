@@ -1,0 +1,23 @@
+# IntelliJ
+.idea/
+
+# VS Code
+.vscode/
+
+# Environment files
+**/.env
+**/.env.*
+
+# Backend (Spring Boot)
+backend/target/
+
+# Frontend (React/Vite)
+frontend/node_modules/
+frontend/dist/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

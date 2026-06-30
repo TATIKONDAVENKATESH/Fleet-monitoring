@@ -1,0 +1,88 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: fleetdb_test
+          POSTGRES_USER: fleet
+          POSTGRES_PASSWORD: fleet123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          # BUG FIX CI1: Redis is on 6379 in CI, but application.yml test
+          # profile had port 6370. Fixed to 6379 in application.yml.
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Build with Maven (skip tests first for faster layer cache)
+        working-directory: backend
+        run: mvn clean package -DskipTests -q
+
+      - name: Run unit tests
+        working-directory: backend
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/fleetdb_test
+          DB_USERNAME: fleet
+          DB_PASSWORD: fleet123
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          # BUG FIX CI2: JWT_SECRET must be a Base64-encoded key of at least
+          # 32 bytes (256 bits) for HMAC-SHA256. The original was 64 hex chars
+          # which is correct — kept as-is.
+          JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+          JWT_EXPIRATION_MS: 3600000
+          JWT_REFRESH_EXPIRATION_MS: 604800000
+        run: mvn test -pl . --no-transfer-progress
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-backend
+          path: backend/target/surefire-reports/
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fleet-backend-jar
+          path: backend/target/fleet-monitoring-backend-*.jar
+          retention-days: 5
