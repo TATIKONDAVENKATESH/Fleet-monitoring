@@ -202,6 +202,22 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!--
+						Fix: on some Windows JVMs, the default timezone resolves to the
+						deprecated alias "Asia/Calcutta" instead of "Asia/Kolkata". Postgres
+						rejects the legacy alias outright when pgjdbc sends it as the session
+						TimeZone parameter, breaking Testcontainers/Flyway connections during
+						tests. Pinning to UTC avoids relying on the host's timezone naming.
+					-->
+					<systemPropertyVariables>
+						<user.timezone>UTC</user.timezone>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>${java.version}</source>

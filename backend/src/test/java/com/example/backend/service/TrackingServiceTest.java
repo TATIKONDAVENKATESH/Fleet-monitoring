@@ -55,9 +55,9 @@ class TrackingServiceTest {
                 .status(VehicleStatus.ACTIVE)
                 .build();
 
-        when(redisTemplate.opsForValue()).thenReturn(valueOps);
-        when(vehicleService.getVehicle(1L)).thenReturn(testVehicle);
-        when(geofenceService.findAllActive()).thenReturn(java.util.List.of());
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        lenient().when(vehicleService.getVehicle(1L)).thenReturn(testVehicle);
+        lenient().when(geofenceService.findAllActive()).thenReturn(java.util.List.of());
     }
 
     @Test
