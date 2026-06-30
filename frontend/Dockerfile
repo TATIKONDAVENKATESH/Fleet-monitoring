@@ -5,12 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Fix: use `npm install` which creates the lockfile if absent.
-# To restore `npm ci` (faster, deterministic, recommended for production):
-#   1. Run `npm install` locally to generate package-lock.json
-#   2. Commit package-lock.json to version control
-#   3. Change this line back to: RUN npm ci --silent
-RUN npm install --verbose
+RUN npm ci
 
 COPY . .
 

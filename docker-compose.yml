@@ -47,7 +47,9 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: fleet-backend
-    env_file: ./backend/.env
+    env_file:
+      - path: ./backend/.env
+        required: false
     environment:
       DB_URL: jdbc:postgresql://postgres:5432/fleetdb
       REDIS_HOST: redis

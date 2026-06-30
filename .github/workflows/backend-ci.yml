@@ -81,3 +81,7 @@ jobs:
           name: fleet-backend-jar
           path: backend/target/fleet-monitoring-backend-*.jar
           retention-days: 5
+
+      - name: Verify Docker image builds
+        working-directory: backend
+        run: docker build -t fleet-backend:ci-check .
