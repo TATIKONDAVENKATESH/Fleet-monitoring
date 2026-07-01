@@ -40,9 +40,6 @@ EOF
   log "Recorded ${TAG} as last known-good deployment."
 }
 
-# Polls both the backend health endpoint and the frontend, both
-# through the public nginx entrypoint on :80 — the same path real
-# traffic takes, so a pass here means the public site actually works.
 wait_for_health() {
   local elapsed=0
   log "Waiting for health at ${HEALTH_URL} (timeout ${HEALTH_TIMEOUT_SECONDS}s)..."
@@ -67,7 +64,9 @@ deploy() {
 
   log "Starting containers (backend=${BACKEND_IMAGE}, frontend=${FRONTEND_IMAGE})..."
   BACKEND_IMAGE="$BACKEND_IMAGE" FRONTEND_IMAGE="$FRONTEND_IMAGE" \
-    docker compose up -d --no-recreate postgres redis
+      docker compose up -d --no-recreate postgres redis
+  BACKEND_IMAGE="$BACKEND_IMAGE" FRONTEND_IMAGE="$FRONTEND_IMAGE" \
+      docker compose up -d backend frontend nginx
   BACKEND_IMAGE="$BACKEND_IMAGE" FRONTEND_IMAGE="$FRONTEND_IMAGE" \
     docker compose up -d backend frontend nginx
 
