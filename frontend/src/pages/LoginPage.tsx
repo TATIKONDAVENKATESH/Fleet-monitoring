@@ -6,6 +6,7 @@ import {
 import { Visibility, VisibilityOff, LocalShipping } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();

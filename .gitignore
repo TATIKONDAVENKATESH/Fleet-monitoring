@@ -22,6 +22,9 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 
+# Deploy state (per-machine, not shared via git)
+.deploy/
+
 # SSH deploy keys (never commit private keys)
 gcp_deploy_key
 gcp_deploy_key.pub

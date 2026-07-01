@@ -8,6 +8,7 @@ import { Visibility, VisibilityOff, LocalShipping } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import type { Role } from '../types';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const ROLE_OPTIONS: { value: Role; label: string }[] = [
   { value: 'ADMIN', label: 'Admin' },
@@ -45,8 +46,8 @@ const RegisterPage: React.FC = () => {
     try {
       await register(name, email, password, role);
       navigate('/dashboard', { replace: true });
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Registration failed. Please try again.');
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
