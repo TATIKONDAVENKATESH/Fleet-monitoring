@@ -21,3 +21,9 @@ frontend/dist/
 # OS files
 .DS_Store
 Thumbs.db
+
+# SSH deploy keys (never commit private keys)
+gcp_deploy_key
+gcp_deploy_key.pub
+*.pem
+sshkeys.txt
