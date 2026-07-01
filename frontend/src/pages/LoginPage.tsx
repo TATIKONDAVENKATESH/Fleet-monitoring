@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
     try {
       await login(email, password);
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Invalid email or password');
+      setError(getErrorMessage(err, 'Invalid email or password'));
     } finally {
       setLoading(false);
     }
