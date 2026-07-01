@@ -43,6 +43,7 @@ services:
 
   # ── Spring Boot Backend ───────────────────────────────────────
   backend:
+    image: ${BACKEND_IMAGE:-fleet-monitoring-backend}
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -69,6 +70,7 @@ services:
   # Serves static files only; all API/WS routing for the unified
   # entrypoint happens through the Nginx reverse proxy below.
   frontend:
+    image: ${FRONTEND_IMAGE:-fleet-monitoring-frontend}
     build:
       context: ./frontend
       dockerfile: Dockerfile

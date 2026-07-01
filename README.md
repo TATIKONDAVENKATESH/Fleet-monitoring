@@ -71,6 +71,30 @@ against the `test` Spring profile.
 - **No CSRF protection** — disabled because auth is stateless JWT-bearer, not
   cookie/session-based, so CSRF doesn't apply in the usual sense.
 
+## Deployment
+
+Deployed on a single **GCP Compute Engine VM** (Ubuntu 22.04, `asia-south1`),
+running the full Docker Compose stack (Postgres, Redis, backend, frontend,
+Nginx). CI builds and pushes backend/frontend images to GHCR; a separate
+`deploy` job SSHes into the VM, pulls the new images, and does a rolling
+`docker compose up -d` restart.
+
+```
+.github/workflows/deploy.yml
+  docker-build  → builds & pushes images to ghcr.io on push to main
+  deploy        → SSH into GCP VM, pull latest images, restart stack
+```
+
+Required repo secrets (set under **Settings → Environments → production**):
+
+| Secret         | Purpose                                                       |
+|----------------|----------------------------------------------------------------|
+| `GCP_HOST`     | Static external IP of the Compute Engine VM                   |
+| `GCP_USER`     | SSH user on the VM (`ubuntu`)                                  |
+| `GCP_SSH_KEY`  | Private key paired with the public key in the VM's metadata   |
+
+**Live app:** http://34.47.147.235
+
 ## Project structure
 
 ```
