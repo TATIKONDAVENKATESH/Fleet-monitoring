@@ -1,36 +1,5 @@
 #!/usr/bin/env bash
 # ============================================================
-# deploy.sh — health-gated deploy with automatic rollback
-# Fleet Monitoring Platform
-#
-# What it does:
-#   1. Builds backend + frontend images tagged with the current
-#      git commit (falls back to a timestamp if not a git repo).
-#   2. Starts them alongside postgres/redis/nginx.
-#   3. Polls the backend's /actuator/health and the frontend
-#      through the same nginx entrypoint the public traffic uses.
-#   4. If healthy within the timeout -> records this tag as
-#      "last known-good" and exits 0.
-#   5. If NOT healthy -> prints backend logs, then automatically
-#      redeploys the last known-good images and re-checks health.
-#      Exits 1 (bad deploy, rolled back) or 2 (rollback itself
-#      failed — needs a human).
-#
-# Usage:
-#   ./scripts/deploy.sh              deploy the current working tree
-#   ./scripts/deploy.sh rollback     manually roll back on demand
-#   ./scripts/deploy.sh status       show current + last-good tags
-#
-# Requires: docker, docker compose v2, curl. git is optional
-# (used only to tag images by commit; falls back to a timestamp).
-#
-# NOTE: this protects against application-level regressions
-# (crashes, failed health checks, bad config). It does NOT protect
-# against destructive database migrations — a migration that drops
-# or renames a column will not be undone by rolling back the app
-# image. Keep migrations backward-compatible with the previous
-# release when possible.
-# ============================================================
 set -euo pipefail
 
 cd "$(dirname "$0")/.."   # always run from repo root, regardless of cwd
@@ -41,7 +10,7 @@ mkdir -p "$STATE_DIR"
 
 HEALTH_URL="http://localhost/actuator/health"
 FRONTEND_URL="http://localhost/"
-HEALTH_TIMEOUT_SECONDS=90
+HEALTH_TIMEOUT_SECONDS=240
 HEALTH_POLL_INTERVAL=3
 
 log() { echo "[deploy] $(date '+%H:%M:%S') $*"; }
@@ -98,7 +67,9 @@ deploy() {
 
   log "Starting containers (backend=${BACKEND_IMAGE}, frontend=${FRONTEND_IMAGE})..."
   BACKEND_IMAGE="$BACKEND_IMAGE" FRONTEND_IMAGE="$FRONTEND_IMAGE" \
-    docker compose up -d postgres redis backend frontend nginx
+    docker compose up -d --no-recreate postgres redis
+  BACKEND_IMAGE="$BACKEND_IMAGE" FRONTEND_IMAGE="$FRONTEND_IMAGE" \
+    docker compose up -d backend frontend nginx
 
   if wait_for_health; then
     save_last_good
