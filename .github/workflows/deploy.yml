@@ -93,48 +93,89 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy to GCP VM via SSH
+        id: deploy
         uses: appleboy/ssh-action@v1.0.3
         env:
           BACKEND_IMAGE_REF:  ${{ env.REGISTRY }}/${{ needs.docker-build.outputs.repo_lc }}/fleet-backend:latest
           FRONTEND_IMAGE_REF: ${{ env.REGISTRY }}/${{ needs.docker-build.outputs.repo_lc }}/fleet-frontend:latest
+          JWT_SECRET:   ${{ secrets.JWT_SECRET }}
+          DB_USERNAME:  ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD:  ${{ secrets.DB_PASSWORD }}
         with:
           host:     ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key:      ${{ secrets.GCP_SSH_KEY }}
-          envs: BACKEND_IMAGE_REF,FRONTEND_IMAGE_REF
+          envs: BACKEND_IMAGE_REF,FRONTEND_IMAGE_REF,JWT_SECRET,DB_USERNAME,DB_PASSWORD
+          # deploy.sh itself uses `set -euo pipefail` and returns:
+          #   0 = deploy healthy
+          #   1 = deploy failed, but automatic rollback to last known-good succeeded
+          #   2 = deploy failed AND rollback failed — needs a human right now
+          # We must NOT `set -e` here, or exit 1/2 would kill the SSH step
+          # before we get a chance to tell those two cases apart below.
           script: |
-            set -e
             cd /opt/fleet-monitoring
 
-            # Sync latest code (docker-compose.yml, infra configs, etc.)
+            # Sync latest code (docker-compose.yml, infra configs, scripts/deploy.sh itself)
             git fetch origin main
             git reset --hard origin/main
+            chmod +x scripts/deploy.sh
 
-            # Pull latest images
+            # Fail fast and loud if a required secret is missing, instead of writing
+            # an empty value and letting the app crash-loop later with a confusing error.
+            for var in JWT_SECRET DB_USERNAME DB_PASSWORD; do
+              if [ -z "$(eval echo \$$var)" ]; then
+                echo "::error::Required secret $var is empty or not set in GitHub Actions secrets."
+                exit 2
+              fi
+            done
+
+            # Regenerate both .env files from GitHub Secrets on every deploy, so the VM
+            # can never silently drift from what's configured in GitHub (this is what
+            # caused the JWT_SECRET-missing 502 outage). Files are private to root/owner.
+            umask 077
+            cat > .env <<ENVEOF
+            DB_USERNAME=${DB_USERNAME}
+            DB_PASSWORD=${DB_PASSWORD}
+            ENVEOF
+
+            cat > backend/.env <<ENVEOF
+            JWT_SECRET=${JWT_SECRET}
+            ENVEOF
+
+            chmod 600 .env backend/.env
+
+            # Pull latest images so deploy.sh can reference them by digest-stable tag
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker pull "$BACKEND_IMAGE_REF"
             docker pull "$FRONTEND_IMAGE_REF"
 
-            # Update compose to use pre-built images
-            export BACKEND_IMAGE="$BACKEND_IMAGE_REF"
-            export FRONTEND_IMAGE="$FRONTEND_IMAGE_REF"
+            BACKEND_IMAGE="$BACKEND_IMAGE_REF" FRONTEND_IMAGE="$FRONTEND_IMAGE_REF" \
+              ./scripts/deploy.sh
+            status=$?
 
-            # Rolling restart — bring up new containers before removing old
-            docker compose up -d --no-build backend frontend nginx
+            if [ "$status" -eq 0 ]; then
+              echo "deploy_result=success"
+            elif [ "$status" -eq 1 ]; then
+              echo "deploy_result=rolled_back"
+              echo "New deploy failed health checks; automatically rolled back to last known-good. Site is up on the previous version — investigate the failed build before retrying."
+              exit 1
+            else
+              echo "deploy_result=rollback_failed"
+              echo "::error::New deploy AND rollback both failed health checks. Manual intervention required immediately — check 'docker compose logs' on the VM."
+              exit 2
+            fi
 
-            # Wait for backend health
-            for i in $(seq 1 30); do
-              if curl -sf http://localhost:8080/actuator/health > /dev/null; then
-                echo "Backend healthy after $i attempts"
-                break
-              fi
-              sleep 5
-            done
-
-            # Clean up old images
+            # Only prune once we know the new (or rolled-back) containers are confirmed healthy
             docker image prune -f
 
       - name: Notify deployment
         if: always()
         run: |
-          echo "Deployment to ${{ github.event.inputs.environment || 'production' }} completed with status: ${{ job.status }}"
+          if [ "${{ steps.deploy.outcome }}" = "success" ]; then
+            echo "✅ Deployment to ${{ github.event.inputs.environment || 'production' }} succeeded."
+          else
+            echo "⚠️ Deployment to ${{ github.event.inputs.environment || 'production' }} did not complete cleanly (outcome: ${{ steps.deploy.outcome }})."
+            echo "Check the 'Deploy to GCP VM via SSH' step above: exit 1 means an automatic rollback already restored the previous working version; exit 2 means rollback also failed and needs immediate manual action."
+          fi
+          # TODO: replace with a real Slack/Teams/PagerDuty webhook call so failures
+          # (especially rollback_failed) page someone instead of only living in Actions logs.
