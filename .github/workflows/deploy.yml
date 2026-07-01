@@ -106,6 +106,10 @@ jobs:
             set -e
             cd /opt/fleet-monitoring
 
+            # Sync latest code (docker-compose.yml, infra configs, etc.)
+            git fetch origin main
+            git reset --hard origin/main
+
             # Pull latest images
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker pull "$BACKEND_IMAGE_REF"
