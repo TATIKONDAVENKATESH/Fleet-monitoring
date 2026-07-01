@@ -13,6 +13,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: Role) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -28,9 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { data } = await authApi.login({ email, password });
-    const auth: AuthResponse = data.data;
+  const persistAuth = useCallback((auth: AuthResponse) => {
     localStorage.setItem('accessToken', auth.accessToken);
     localStorage.setItem('refreshToken', auth.refreshToken);
     const u: AuthUser = {
@@ -42,6 +41,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(u));
     setUser(u);
   }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { data } = await authApi.login({ email, password });
+    persistAuth(data.data);
+  }, [persistAuth]);
+
+  const register = useCallback(async (name: string, email: string, password: string, role: Role) => {
+    const { data } = await authApi.register({ name, email, password, role });
+    persistAuth(data.data);
+  }, [persistAuth]);
 
   /**
    * FIX B3: Pass the stored refresh token to authApi.logout().
@@ -62,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -47,8 +47,14 @@ docker compose up --build
   — Vite proxies `/api` and `/ws` to `localhost:8080` in dev, so the backend
   must be running separately (`cd backend && ./mvnw spring-boot:run`).
 
-Default seeded account: `admin@fleet.com` / `Admin@123` (see
-`V1__initial_schema.sql` — change or remove this seed before any real deploy).
+No accounts are seeded. Create the first user (including an `ADMIN`) from the
+UI's **Sign up** page, or directly via:
+
+```bash
+curl -X POST http://localhost/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Admin","email":"admin@example.com","password":"Passw0rd!","role":"ADMIN"}'
+```
 
 ## Backend tests
 
@@ -94,12 +100,3 @@ Required repo secrets (set under **Settings → Environments → production**):
 | `GCP_SSH_KEY`  | Private key paired with the public key in the VM's metadata   |
 
 **Live app:** http://34.47.147.235
-
-## Project structure
-
-```
-backend/   Spring Boot app (controller → service → repository, DTOs, MapStruct mappers)
-frontend/  React app (pages, components, contexts, hooks, typed API client)
-infra/     Nginx reverse-proxy config
-.github/   CI (build + test per service) and a deploy workflow
-```

@@ -109,6 +109,11 @@ CREATE INDEX idx_refresh_token_user  ON refresh_tokens(user_id);
 -- =============================================
 -- DEFAULT ADMIN USER
 -- (password = Admin@123 BCrypt encoded)
+-- Removed by V4__remove_default_admin_user.sql —
+-- do not delete this INSERT here; V1 is already
+-- applied in existing databases and Flyway
+-- checksums it, so it must stay byte-for-byte
+-- identical to what originally ran.
 -- =============================================
 INSERT INTO users (name, email, password, role, status, created_at)
 VALUES (
