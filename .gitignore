@@ -17,7 +17,14 @@ frontend/dist/
 
 # Logs
 *.log
+*.gz
+logs/
+backend/logs/
 
+# Local media
+*.jpeg
+*.jpg
+*.png
 # OS files
 .DS_Store
 Thumbs.db
