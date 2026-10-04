@@ -1,5 +1,6 @@
 # FleetOps — Real-Time Fleet Monitoring Platform
 
+🚀 **Live Demo:** [https://fleet-monitoring-nine.vercel.app](https://fleet-monitoring-nine.vercel.app)
 A full-stack fleet tracking system: vehicles stream GPS updates, the backend
 detects overspeed/geofence/offline events in real time, and a live dashboard
 shows everything on a map as it happens.
