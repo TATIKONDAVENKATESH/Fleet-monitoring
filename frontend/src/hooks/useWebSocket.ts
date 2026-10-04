@@ -26,8 +26,9 @@ export const useWebSocket = ({
     const token = localStorage.getItem('accessToken');
     if (!token || !enabled) return;
 
+    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : '';
     const client = new Client({
-      webSocketFactory: () => new SockJS('/ws/tracking'),
+      webSocketFactory: () => new SockJS(`${baseUrl}/ws/tracking`),
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
