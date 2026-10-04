@@ -16,7 +16,7 @@ public class PageResponse<T> {
     private int totalPages;
     private boolean last;
 
-    /** Builds a PageResponse from a Page whose content is already the target DTO type. */
+    // Builds a PageResponse from a Page whose content is already the target DTO type. 
     public static <T> PageResponse<T> of(Page<T> page) {
         return PageResponse.<T>builder()
                 .content(page.getContent())
@@ -28,7 +28,7 @@ public class PageResponse<T> {
                 .build();
     }
 
-    /** Builds a PageResponse from a Page of entities, mapping each entity to its DTO. */
+    // Builds a PageResponse from a Page of entities, mapping each entity to its DTO. 
     public static <E, T> PageResponse<T> of(Page<E> page, Function<E, T> mapper) {
         return PageResponse.<T>builder()
                 .content(page.getContent().stream().map(mapper).toList())

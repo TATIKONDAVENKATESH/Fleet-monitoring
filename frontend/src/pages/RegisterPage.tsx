@@ -66,7 +66,7 @@ const RegisterPage: React.FC = () => {
     >
       <Card sx={{ width: 420, mx: 2 }}>
         <CardContent sx={{ p: 4 }}>
-          {/* Logo */}
+          {//  Logo }
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <LocalShipping sx={{ fontSize: 52, color: 'primary.main' }} />
             <Typography variant="h5" fontWeight={700} mt={1}>

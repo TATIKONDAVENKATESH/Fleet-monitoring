@@ -1,8 +1,6 @@
-/**
- * Extracts a human-readable error message from an unknown error value.
- * Handles Axios-style errors (err.response.data.message), plain Error
- * instances, and string errors, falling back to a generic message.
- */
+// Extracts a human-readable error message from an unknown error value.
+// Handles Axios-style errors (err.response.data.message), plain Error
+// instances, and string errors, falling back to a generic message.
 export function getErrorMessage(err: unknown, fallback = 'Something went wrong. Please try again.'): string {
   if (typeof err === 'string') {
     return err;

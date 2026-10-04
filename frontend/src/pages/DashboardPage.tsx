@@ -67,7 +67,7 @@ const DashboardPage: React.FC = () => {
         Fleet Dashboard
       </Typography>
 
-      {/* Stats row */}
+      {//  Stats row }
       <Grid container spacing={3} mb={3}>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
@@ -135,7 +135,7 @@ const DashboardPage: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Live map */}
+      {//  Live map }
       <Paper sx={{ height: 520, p: 0, overflow: 'hidden' }}>
         <LiveMap locations={liveLocations} geofences={geofences} />
       </Paper>

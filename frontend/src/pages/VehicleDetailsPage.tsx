@@ -81,7 +81,7 @@ const VehicleDetailsPage: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* Header */}
+      {//  Header }
       <Box display="flex" alignItems="center" gap={2} mb={3}>
         <Button startIcon={<ArrowBack />} onClick={() => navigate('/vehicles')} variant="outlined">
           Back
@@ -93,7 +93,7 @@ const VehicleDetailsPage: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
-        {/* Vehicle Info */}
+        {//  Vehicle Info }
         <Grid item xs={12} md={6}>
           <Card elevation={2}>
             <CardContent>
@@ -125,7 +125,7 @@ const VehicleDetailsPage: React.FC = () => {
           </Card>
         </Grid>
 
-        {/* Live Location */}
+        {//  Live Location }
         <Grid item xs={12} md={6}>
           <Card elevation={2}>
             <CardContent>
@@ -165,7 +165,7 @@ const VehicleDetailsPage: React.FC = () => {
           </Card>
         </Grid>
 
-        {/* Recent Alerts */}
+        {//  Recent Alerts }
         <Grid item xs={12}>
           <Paper elevation={2} sx={{ p: 3 }}>
             <Box display="flex" alignItems="center" gap={1} mb={2}>

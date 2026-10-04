@@ -50,9 +50,7 @@ public class AlertService {
         return alertMapper.toResponse(alertRepository.save(alert));
     }
 
-    /**
-     * BUG FIX B9: New method supporting the acknowledgeAll controller endpoint.
-     */
+    // BUG FIX B9: New method supporting the acknowledgeAll controller endpoint.
     @Transactional
     public void acknowledgeAll() {
         List<Alert> unacked = alertRepository.findByAcknowledgedFalse();

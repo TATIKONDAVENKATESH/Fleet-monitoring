@@ -59,7 +59,7 @@ const TrackingPage: React.FC = () => {
       <Typography variant="h5" fontWeight={700} mb={2}>Live Tracking</Typography>
 
       <Grid container spacing={2} sx={{ flex: 1, minHeight: 0 }}>
-        {/* Vehicle List */}
+        {//  Vehicle List }
         <Grid item xs={12} md={3}>
           <Paper sx={{ height: '100%', overflow: 'auto' }}>
             <Typography variant="subtitle2" sx={{ p: 2, pb: 1 }}>Vehicles</Typography>
@@ -82,7 +82,7 @@ const TrackingPage: React.FC = () => {
           </Paper>
         </Grid>
 
-        {/* Map */}
+        {//  Map }
         <Grid item xs={12} md={9}>
           <Paper sx={{ height: '100%', overflow: 'hidden' }}>
             <LiveMap
@@ -95,7 +95,7 @@ const TrackingPage: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Route Replay Section */}
+      {//  Route Replay Section }
       {selectedId && (
         <Paper sx={{ mt: 2, p: 2 }}>
           <Typography variant="subtitle1" fontWeight={600} mb={1}>Route Replay</Typography>

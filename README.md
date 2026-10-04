@@ -35,23 +35,26 @@ update has arrived within a configurable window.
 
 ## Running locally
 
+**Backend:**
 ```bash
-cp backend/.env.example backend/.env   # set JWT_SECRET, DB credentials, etc.
-docker compose up --build
+cd backend
+cp .env.example .env   # set DB credentials, etc. if needed
+./mvnw spring-boot:run
 ```
+Make sure you have PostgreSQL running locally, or use an H2 in-memory database if configured. Redis is also needed for the pub/sub features.
 
-- App: http://localhost (via Nginx)
-- API docs: http://localhost/swagger-ui.html
-- Backend directly: http://localhost:8080
-- Frontend dev server (with hot reload): `cd frontend && npm install && npm run dev`
-  — Vite proxies `/api` and `/ws` to `localhost:8080` in dev, so the backend
-  must be running separately (`cd backend && ./mvnw spring-boot:run`).
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Vite proxies `/api` and `/ws` to `localhost:8080` in dev, so the backend must be running.
 
-No accounts are seeded. Create the first user (including an `ADMIN`) from the
-UI's **Sign up** page, or directly via:
+No accounts are seeded. Create the first user (including an `ADMIN`) from the UI's **Sign up** page, or directly via:
 
 ```bash
-curl -X POST http://localhost/api/v1/auth/register \
+curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{"name":"Admin","email":"admin@example.com","password":"Passw0rd!","role":"ADMIN"}'
 ```
@@ -62,41 +65,10 @@ curl -X POST http://localhost/api/v1/auth/register \
 cd backend && ./mvnw test
 ```
 
-Unit tests cover auth and tracking business logic (`AuthServiceTest`,
-`TrackingServiceTest`); `TrackingControllerIT` is a MockMvc integration test
-against the `test` Spring profile.
+Unit tests cover auth and tracking business logic (`AuthServiceTest`, `TrackingServiceTest`); `TrackingControllerIT` is a MockMvc integration test against the `test` Spring profile.
 
-## Known tradeoffs (by design, not oversights)
+## Known tradeoffs (by design for learning purposes)
 
-- **JWT/refresh tokens are stored in `localStorage`**, not httpOnly cookies.
-  Simpler to implement and demo, but technically XSS-exposed — a cookie-based
-  flow would be the production-grade alternative.
-- **CORS allows all origins** (`allowedOriginPatterns("*")`) for ease of local
-  development; in a real deployment this should be a specific allow-list
-  driven by an environment variable.
-- **No CSRF protection** — disabled because auth is stateless JWT-bearer, not
-  cookie/session-based, so CSRF doesn't apply in the usual sense.
-
-## Deployment
-
-Deployed on a single **GCP Compute Engine VM** (Ubuntu 22.04, `asia-south1`),
-running the full Docker Compose stack (Postgres, Redis, backend, frontend,
-Nginx). CI builds and pushes backend/frontend images to GHCR; a separate
-`deploy` job SSHes into the VM, pulls the new images, and does a rolling
-`docker compose up -d` restart.
-
-```
-.github/workflows/deploy.yml
-  docker-build  → builds & pushes images to ghcr.io on push to main
-  deploy        → SSH into GCP VM, pull latest images, restart stack
-```
-
-Required repo secrets (set under **Settings → Environments → production**):
-
-| Secret         | Purpose                                                       |
-|----------------|----------------------------------------------------------------|
-| `GCP_HOST`     | Static external IP of the Compute Engine VM                   |
-| `GCP_USER`     | SSH user on the VM (`ubuntu`)                                  |
-| `GCP_SSH_KEY`  | Private key paired with the public key in the VM's metadata   |
-
-**Live app:** http://34.47.147.235
+- **JWT/refresh tokens are stored in `localStorage`**, not httpOnly cookies. Simpler to implement and demo.
+- **CORS allows all origins** (`allowedOriginPatterns("*")`) for ease of local development.
+- **No CSRF protection** — disabled because auth is stateless JWT-bearer.

@@ -6,7 +6,7 @@ import type { LiveLocation, Alert } from '../types';
 interface UseWebSocketOptions {
   onLocationUpdate?: (location: LiveLocation) => void;
   onAlertUpdate?: (alert: Alert) => void;
-  /** FIX H7: New callbacks so Layout can track connection status */
+  // FIX H7: New callbacks so Layout can track connection status 
   onConnect?: () => void;
   onDisconnect?: () => void;
   enabled?: boolean;
@@ -39,7 +39,7 @@ export const useWebSocket = ({
         if (onLocationUpdate) {
           subs.push(
             client.subscribe('/topic/locations', (msg) => {
-              try { onLocationUpdate(JSON.parse(msg.body)); } catch { /* ignore */ }
+              try { onLocationUpdate(JSON.parse(msg.body)); } catch { //  ignore  }
             })
           );
         }
@@ -47,7 +47,7 @@ export const useWebSocket = ({
         if (onAlertUpdate) {
           subs.push(
             client.subscribe('/topic/alerts', (msg) => {
-              try { onAlertUpdate(JSON.parse(msg.body)); } catch { /* ignore */ }
+              try { onAlertUpdate(JSON.parse(msg.body)); } catch { //  ignore  }
             })
           );
         }

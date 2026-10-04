@@ -54,28 +54,36 @@ public class TrackingService {
 
     @Transactional
     public LiveLocationResponse processLocation(LocationRequest request) {
+        // Fetch vehicle details or throw exception if not found
         Vehicle vehicle = vehicleService.getVehicle(request.getVehicleId());
 
+        // Update status to ACTIVE if the vehicle is sending locations
         if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
             vehicle.setStatus(VehicleStatus.ACTIVE);
             vehicleRepository.save(vehicle);
         }
 
+        // Save location to the historical database table
         persistHistory(vehicle, request);
 
+        // Update real-time Redis cache with current location
         LiveVehicleLocation liveLocation = buildLiveLocation(vehicle, request);
         cacheLocation(vehicle.getId(), liveLocation);
         updateLastSeen(vehicle.getId());
 
+        // Check if the vehicle is exceeding the speed limit and create an alert
         if (request.getSpeed() != null && request.getSpeed() > overspeedThreshold) {
             Alert alert = alertService.createAlert(vehicle, AlertType.OVERSPEED,
                     String.format("Vehicle %s exceeded speed limit: %.1f km/h",
                             vehicle.getVehicleNumber(), request.getSpeed()), null);
+            // Broadcast the new alert to connected WebSocket clients
             redisPublisher.publish(RedisKeyConstants.ALERT_CHANNEL, alertMapper.toResponse(alert));
         }
 
+        // Check if the vehicle has entered or exited any active geofences
         checkGeofences(vehicle, request.getLatitude(), request.getLongitude());
 
+        // Broadcast the new location to connected WebSocket clients
         redisPublisher.publish(RedisKeyConstants.LOCATION_CHANNEL, liveLocation);
 
         log.debug("Processed location for vehicle {}: lat={}, lon={}",

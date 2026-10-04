@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
         },
       }}
     >
-      {/* Logo */}
+      {//  Logo }
       <Box sx={{ px: 2, py: 2.5, display: 'flex', alignItems: 'center', gap: 1.5, minHeight: 64 }}>
         <Speed sx={{ color: 'primary.main', fontSize: 28, flexShrink: 0 }} />
         {!collapsed && (
@@ -59,7 +59,7 @@ export const Sidebar: React.FC = () => {
 
       <Divider sx={{ borderColor: 'rgba(148,163,184,0.08)' }} />
 
-      {/* Nav */}
+      {//  Nav }
       <List sx={{ px: 1, pt: 1, flexGrow: 1 }}>
         {navItems.map((item) => {
           const active = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
@@ -103,7 +103,7 @@ export const Sidebar: React.FC = () => {
 
       <Divider sx={{ borderColor: 'rgba(148,163,184,0.08)' }} />
 
-      {/* User */}
+      {//  User }
       <Box sx={{ p: 1.5 }}>
         {!collapsed ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1 }}>

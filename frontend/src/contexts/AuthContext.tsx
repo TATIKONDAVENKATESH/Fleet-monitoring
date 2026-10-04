@@ -52,11 +52,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     persistAuth(data.data);
   }, [persistAuth]);
 
-  /**
-   * FIX B3: Pass the stored refresh token to authApi.logout().
-   * The backend AuthController.logout expects a RefreshTokenRequest body
-   * ({ "refreshToken": "..." }). The original call sent no body → HTTP 400.
-   */
+  // FIX B3: Pass the stored refresh token to authApi.logout().
+// The backend AuthController.logout expects a RefreshTokenRequest body
+// ({ "refreshToken": "..." }). The original call sent no body → HTTP 400.
   const logout = useCallback(async () => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');

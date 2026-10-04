@@ -14,7 +14,7 @@ import GeofencePage from './pages/GeofencePage';
 import ReportsPage from './pages/ReportsPage';
 import ProfilePage from './pages/ProfilePage';
 
-/** Redirects unauthenticated users to /login */
+// Redirects unauthenticated users to /login 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
@@ -53,7 +53,7 @@ const App: React.FC = () => {
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
-      {/* Catch-all */}
+      {//  Catch-all }
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

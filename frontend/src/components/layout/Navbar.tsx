@@ -34,7 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({ title, recentAlerts = [], onRefr
           {title}
         </Typography>
 
-        {/* WS indicator */}
+        {//  WS indicator }
         <Tooltip title={wsConnected ? 'Live feed connected' : 'Connecting...'}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Circle sx={{ fontSize: 10, color: wsConnected ? 'success.main' : 'warning.main', animation: wsConnected ? 'pulse 2s infinite' : 'none' }} />
