@@ -40,7 +40,7 @@ export const useWebSocket = ({
         if (onLocationUpdate) {
           subs.push(
             client.subscribe('/topic/locations', (msg) => {
-              try { onLocationUpdate(JSON.parse(msg.body)); } catch { //  ignore  }
+              try { onLocationUpdate(JSON.parse(msg.body)); } catch { /* ignore */ }
             })
           );
         }
@@ -48,7 +48,7 @@ export const useWebSocket = ({
         if (onAlertUpdate) {
           subs.push(
             client.subscribe('/topic/alerts', (msg) => {
-              try { onAlertUpdate(JSON.parse(msg.body)); } catch { //  ignore  }
+              try { onAlertUpdate(JSON.parse(msg.body)); } catch { /* ignore */ }
             })
           );
         }

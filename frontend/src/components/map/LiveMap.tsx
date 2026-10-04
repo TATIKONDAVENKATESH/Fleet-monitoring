@@ -66,7 +66,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
 
       <MapUpdater locations={locations} selected={selectedVehicleId} />
 
-      {//  Geofences }
+      {/* Geofences */}
       {geofences.filter((g) => g.active).map((g) => (
         <Circle
           key={g.id}
@@ -89,7 +89,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
         </Circle>
       ))}
 
-      {//  Vehicle markers }
+      {/* Vehicle markers */}
       {locations.map((loc) => (
         <Marker
           key={loc.vehicleId}

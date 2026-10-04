@@ -61,9 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (refreshToken) {
         await authApi.logout(refreshToken);
       }
-    } catch {
-      // Always clear local state even if server logout fails
-    }
+    } catch {/* Always clear local state even if server logout fails */}
     localStorage.clear();
     setUser(null);
   }, []);

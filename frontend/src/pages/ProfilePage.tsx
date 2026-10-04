@@ -38,7 +38,7 @@ const ProfilePage: React.FC = () => {
     <Box sx={{ p: 3, maxWidth: 700, mx: 'auto' }}>
       <Typography variant="h5" fontWeight={700} mb={3}>Profile</Typography>
 
-      {//  User Info Card }
+      {/* User Info Card */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box display="flex" alignItems="center" gap={3} mb={3}>
           <Avatar sx={{ width: 72, height: 72, bgcolor: 'primary.dark', fontSize: 28 }}>
@@ -85,7 +85,7 @@ const ProfilePage: React.FC = () => {
         </Grid>
       </Paper>
 
-      {//  Change Password }
+      {/* Change Password */}
       <Paper sx={{ p: 3 }}>
         <Box display="flex" alignItems="center" gap={1} mb={3}>
           <Lock color="primary" />

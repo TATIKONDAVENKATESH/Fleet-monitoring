@@ -89,12 +89,12 @@ export const RouteReplayMap: React.FC<RouteReplayMapProps> = ({ waypoints }) => 
           />
           <FitBounds points={points} />
 
-          {//  Full route (faded) }
+          {/* Full route (faded) */}
           {points.length > 1 && (
             <Polyline positions={points} pathOptions={{ color: '#475569', weight: 2, opacity: 0.4 }} />
           )}
 
-          {//  Traveled route }
+          {/* Traveled route */}
           {progress > 0 && (
             <Polyline
               positions={points.slice(0, progress + 1)}
@@ -108,7 +108,7 @@ export const RouteReplayMap: React.FC<RouteReplayMapProps> = ({ waypoints }) => 
         </MapContainer>
       </Box>
 
-      {//  Controls }
+      {/* Controls */}
       <Box sx={{ px: 1 }}>
         <Slider
           value={progress}

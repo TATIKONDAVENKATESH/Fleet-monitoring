@@ -53,7 +53,7 @@ const App: React.FC = () => {
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
-      {//  Catch-all }
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
